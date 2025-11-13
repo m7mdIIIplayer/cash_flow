@@ -16,6 +16,7 @@
     color: #fff;
     text-align: center;
     overflow-x: hidden;
+    padding-bottom: 40px;
   }
 
   h2 {
@@ -37,10 +38,10 @@
   #pointer {
     position: absolute;
     top: 50%;
-    right: -12px;
+    right: -14px;
     transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     background: red;
     clip-path: polygon(0 50%, 100% 0, 100% 100%);
     z-index: 9999;
@@ -58,7 +59,8 @@
 
   #result {
     margin-top: 20px;
-    font-size: 22px;
+    font-size: 23px;
+    font-weight: bold;
     color: gold;
     text-shadow: 0 0 10px gold;
   }
@@ -77,44 +79,40 @@
 <div id="result">جاري تدوير العجلة...</div>
 
 <script>
-  // الترتيب الحقيقي من الصورة
+  // ترتيب الشرائح حسب الصورة الجديدة
   const slices = [
     "25000",
-    "15000",
-    "10000",
-    "5000",
-    "Free Spin",
-    "Good Luck",
-    "150000",
+    "50000",
+    "75000",
     "100000",
-    "35000",
-    "50000"
+    "150000",
+    "5000",
+    "10000",
+    "15000",
+    "Free Spin",
+    "Good Luck"
   ];
 
   // قراءة النتيجة من URL
   const params = new URLSearchParams(location.search);
   const result = params.get("result") || "0";
 
-  // تحديد رقم الشريحة المطلوبة
   let prizeIndex = slices.indexOf(result);
-  if (prizeIndex === -1) prizeIndex = 0; // fallback
+  if (prizeIndex === -1) prizeIndex = 0;
 
   const wheel = document.getElementById("wheel");
   const resultDiv = document.getElementById("result");
 
   const sliceDeg = 360 / slices.length;
 
-  // حساب زاوية التوقف الدقيقة
+  // زاوية التوقف الدقيقة
   const stopAngle = 360 - (prizeIndex * sliceDeg + sliceDeg / 2);
-
   const finalRotation = 360 * 6 + stopAngle;
 
-  // تدوير العجلة
   setTimeout(() => {
     wheel.style.transform = `rotate(${finalRotation}deg)`;
   }, 500);
 
-  // إظهار النتيجة
   setTimeout(() => {
     if (result === "Good Luck") {
       resultDiv.innerHTML = "😢 <b>حظ أوفر! حاول مرة أخرى.</b>";
