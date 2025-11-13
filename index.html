@@ -20,7 +20,6 @@
         overflow: hidden;
         color: #fff;
 
-        /* مركز الصفحة بالكامل */
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -44,7 +43,7 @@
         transition: transform 6s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
-    /* المؤشر = نقطة فقط */
+    /* المؤشر = نقطة سوداء فقط */
     #pointer {
         position: absolute;
         top: 50%;
@@ -52,9 +51,9 @@
         transform: translateY(-50%);
         width: 14px;
         height: 14px;
-        background: red;
+        background: black;
         border-radius: 50%;
-        box-shadow: 0 0 10px red;
+        box-shadow: 0 0 6px #000;
         z-index: 9999;
     }
 
@@ -66,7 +65,6 @@
         text-shadow: 0 0 12px gold;
     }
 
-    /* CASH FLOW أسفل الصفحة */
     #footerText {
         position: absolute;
         bottom: 25px;
@@ -76,7 +74,7 @@
         text-shadow: 0 0 15px gold, 0 0 25px orange;
     }
 
-    /* تأثير النار */
+    /* النار */
     .fireEffect {
         animation: fireGlow 1s infinite alternate;
     }
@@ -106,7 +104,6 @@
 <audio id="winSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_41a0d6edbe.mp3?filename=win-celebration-121114.mp3"></audio>
 
 <script>
-// الشرائح
 const prizes = [
     "5000",
     "10000",
@@ -120,7 +117,6 @@ const prizes = [
     "Good Luck"
 ];
 
-// ألوان الشرائح
 const colors = [
     "#c49b00", "#8c6e00", "#c49b00", "#8c6e00", "#c49b00",
     "#8c6e00", "#c49b00", "#8c6e00", "#222", "#333"
@@ -131,7 +127,6 @@ const ctx = canvas.getContext("2d");
 canvas.width = 330;
 canvas.height = 330;
 
-// رسم العجلة
 function drawWheel() {
     const r = canvas.width / 2;
     const arc = (2 * Math.PI) / prizes.length;
@@ -159,7 +154,7 @@ function drawWheel() {
 }
 drawWheel();
 
-// قراءة النتيجة من الرابط
+// result from link
 const params = new URLSearchParams(window.location.search);
 const resultValue = params.get("result");
 
@@ -195,6 +190,7 @@ function spinToPrize() {
     }, 6000);
 }
 
+// auto spin
 setTimeout(spinToPrize, 1000);
 </script>
 
