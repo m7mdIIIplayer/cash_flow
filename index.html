@@ -1,127 +1,207 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <title>🎡 عجلة الحظ الذهبية</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
 
 <style>
-  body {
-    font-family: "Cairo", sans-serif;
-    background-image: url("luckback.jpg");
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    color: #fff;
-    text-align: center;
-    overflow-x: hidden;
-    padding-bottom: 40px;
-  }
+    body {
+        font-family: "Cairo", sans-serif;
+        background: radial-gradient(circle, #000000, #0a0a0a, #000000);
+        overflow-x: hidden;
+        text-align: center;
+        color: #fff;
+    }
 
-  h2 {
-    margin-top: 20px;
-    color: gold;
-    text-shadow: 0 0 10px gold;
-  }
+    h1 {
+        margin-top: 20px;
+        font-size: 28px;
+        color: gold;
+        text-shadow: 0 0 15px gold, 0 0 30px #ff9800;
+    }
 
-  #wheel-container {
-    position: relative;
-    width: min(90vw, 70vh);
-    height: min(90vw, 70vh);
-    margin: 40px auto 0;
-    border-radius: 50%;
-    overflow: hidden;
-    background: transparent;
-  }
+    /* حاوية العجلة */
+    #wheelContainer {
+        position: relative;
+        width: 330px;
+        height: 330px;
+        margin: 35px auto;
+    }
 
-  #pointer {
-    position: absolute;
-    top: 50%;
-    right: -14px;
-    transform: translateY(-50%);
-    width: 28px;
-    height: 28px;
-    background: red;
-    clip-path: polygon(0 50%, 100% 0, 100% 100%);
-    z-index: 9999;
-  }
+    /* العجلة */
+    #wheelCanvas {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 8px solid gold;
+        box-shadow: 0 0 25px gold, 0 0 50px orange inset;
+        transition: transform 6s cubic-bezier(0.33, 1, 0.68, 1);
+    }
 
-  #wheel {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transition: transform 6s cubic-bezier(0.33, 1, 0.68, 1);
-  }
+    /* المؤشر */
+    #pointer {
+        position: absolute;
+        top: 50%;
+        right: -25px;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 18px solid transparent;
+        border-bottom: 18px solid transparent;
+        border-left: 25px solid red;
+        filter: drop-shadow(0 0 8px red);
+        z-index: 999;
+    }
 
-  #result {
-    margin-top: 20px;
-    font-size: 23px;
-    font-weight: bold;
-    color: gold;
-    text-shadow: 0 0 10px gold;
-  }
+    /* زر تدوير */
+    #spinBtn {
+        margin-top: 20px;
+        padding: 12px 25px;
+        font-size: 22px;
+        background: linear-gradient(45deg, gold, #d48b00);
+        border: none;
+        border-radius: 10px;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 0 15px gold;
+    }
+
+    #spinBtn:hover {
+        box-shadow: 0 0 25px orange;
+    }
+
+    /* نص النتيجة */
+    #result {
+        margin-top: 25px;
+        font-size: 24px;
+        color: gold;
+        text-shadow: 0 0 12px gold;
+    }
+
+    /* تأثير نار حول العجلة */
+    .fireEffect {
+        animation: fireGlow 1s infinite alternate;
+    }
+
+    @keyframes fireGlow {
+        from {
+            filter: drop-shadow(0 0 10px #ff6600);
+        }
+        to {
+            filter: drop-shadow(0 0 30px #ff3300);
+        }
+    }
+
 </style>
-
 </head>
+
 <body>
 
-<h2>🎰 عجلة الحظ الذهبية</h2>
+<h1>🎰 عجلة الحظ الذهبية</h1>
 
-<div id="wheel-container">
-  <div id="pointer"></div>
-  <img id="wheel" src="wheel.png">
+<div id="wheelContainer">
+    <canvas id="wheelCanvas"></canvas>
+    <div id="pointer"></div>
 </div>
 
-<div id="result">جاري تدوير العجلة...</div>
+<button id="spinBtn">🎡 تدوير العجلة</button>
+
+<div id="result"></div>
+
+<!-- صوت الدوران -->
+<audio id="spinSound" src="https://cdn.pixabay.com/download/audio/2023/02/28/audio_91be71e4f8.mp3?filename=wheel-spin-14288.mp3"></audio>
+
+<!-- صوت الفوز -->
+<audio id="winSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_41a0d6edbe.mp3?filename=win-celebration-121114.mp3"></audio>
 
 <script>
-  // ترتيب الشرائح حسب الصورة الجديدة
-  const slices = [
+const prizes = [
+    "5000",
+    "10000",
+    "15000",
     "25000",
     "50000",
     "75000",
     "100000",
     "150000",
-    "5000",
-    "10000",
-    "15000",
     "Free Spin",
     "Good Luck"
-  ];
+];
 
-  // قراءة النتيجة من URL
-  const params = new URLSearchParams(location.search);
-  const result = params.get("result") || "0";
+const colors = [
+    "#c49b00", "#8c6e00", "#c49b00", "#8c6e00", "#c49b00",
+    "#8c6e00", "#c49b00", "#8c6e00", "#222", "#333"
+];
 
-  let prizeIndex = slices.indexOf(result);
-  if (prizeIndex === -1) prizeIndex = 0;
+const canvas = document.getElementById("wheelCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = 330;
+canvas.height = 330;
 
-  const wheel = document.getElementById("wheel");
-  const resultDiv = document.getElementById("result");
+function drawWheel() {
+    const radius = canvas.width / 2;
+    const arc = (2 * Math.PI) / prizes.length;
 
-  const sliceDeg = 360 / slices.length;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // زاوية التوقف الدقيقة
-  const stopAngle = 360 - (prizeIndex * sliceDeg + sliceDeg / 2);
-  const finalRotation = 360 * 6 + stopAngle;
+    for (let i = 0; i < prizes.length; i++) {
+        const angle = i * arc;
 
-  setTimeout(() => {
-    wheel.style.transform = `rotate(${finalRotation}deg)`;
-  }, 500);
+        ctx.beginPath();
+        ctx.fillStyle = colors[i];
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, angle, angle + arc);
+        ctx.fill();
 
-  setTimeout(() => {
-    if (result === "Good Luck") {
-      resultDiv.innerHTML = "😢 <b>حظ أوفر! حاول مرة أخرى.</b>";
-    } else if (result === "Free Spin") {
-      resultDiv.innerHTML = "🎁 لديك دوران إضافي مجاناً!";
-    } else {
-      resultDiv.innerHTML = `🎉 مبروك! ربحت <b>${result}</b>`;
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + arc / 2);
+        ctx.fillStyle = "#fff";
+        ctx.font = "16px Cairo";
+        ctx.textAlign = "center";
+        ctx.fillText(prizes[i], radius - 50, 5);
+        ctx.restore();
     }
-  }, 6500);
+}
+drawWheel();
+
+let spinning = false;
+
+document.getElementById("spinBtn").onclick = function () {
+    if (spinning) return;
+    spinning = true;
+
+    document.getElementById("spinSound").play();
+
+    const prizeIndex = Math.floor(Math.random() * prizes.length);
+    const sliceDeg = 360 / prizes.length;
+    const stopAngle = (360 * 6) + (360 - (prizeIndex * sliceDeg + sliceDeg / 2));
+
+    canvas.style.transform = `rotate(${stopAngle}deg)`;
+    canvas.classList.add("fireEffect");
+
+    setTimeout(() => {
+        document.getElementById("winSound").play();
+        const result = prizes[prizeIndex];
+
+        if (result === "Good Luck") {
+            document.getElementById("result").innerHTML = "😢 حظ أوفر!";
+        } else if (result === "Free Spin") {
+            document.getElementById("result").innerHTML = "🎁 دوران مجاني!";
+        } else {
+            document.getElementById("result").innerHTML = `🎉 مبروك! ربحت <b>${result}</b>`;
+        }
+
+        spinning = false;
+        canvas.classList.remove("fireEffect");
+
+    }, 6000);
+};
 </script>
 
 </body>
