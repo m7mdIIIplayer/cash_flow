@@ -3,37 +3,36 @@
 
 <head>
 <meta charset="UTF-8">
-<title>🎡 CASH FLOW - عجلة الحظ</title>
+<title>💰 CASH FLOW - Wheel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&display=swap" rel="stylesheet">
 
 <style>
     body {
+        margin: 0;
         font-family: "Cairo", sans-serif;
         background-image: url("luckback.jpg");
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
-        overflow-x: hidden;
-        text-align: center;
+        overflow: hidden;
         color: #fff;
+
+        /* مركز الصفحة بالكامل */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
 
-    h1 {
-        margin-top: 20px;
-        font-size: 32px;
-        color: gold;
-        letter-spacing: 3px;
-        text-shadow: 0 0 15px gold, 0 0 30px #ff9800;
-    }
-
+    /* العجلة */
     #wheelContainer {
         position: relative;
         width: 330px;
         height: 330px;
-        margin: 35px auto;
     }
 
     #wheelCanvas {
@@ -45,46 +44,51 @@
         transition: transform 6s cubic-bezier(0.33, 1, 0.68, 1);
     }
 
+    /* المؤشر = نقطة فقط */
     #pointer {
         position: absolute;
         top: 50%;
-        right: -25px;
+        right: -18px;
         transform: translateY(-50%);
-        width: 0;
-        height: 0;
-        border-top: 18px solid transparent;
-        border-bottom: 18px solid transparent;
-        border-left: 25px solid red;
-        filter: drop-shadow(0 0 8px red);
-        z-index: 999;
+        width: 14px;
+        height: 14px;
+        background: red;
+        border-radius: 50%;
+        box-shadow: 0 0 10px red;
+        z-index: 9999;
     }
 
     #result {
-        margin-top: 25px;
+        margin-top: 15px;
         font-size: 24px;
+        font-weight: bold;
         color: gold;
         text-shadow: 0 0 12px gold;
-        font-weight: bold;
     }
 
+    /* CASH FLOW أسفل الصفحة */
+    #footerText {
+        position: absolute;
+        bottom: 25px;
+        font-size: 30px;
+        color: gold;
+        letter-spacing: 3px;
+        text-shadow: 0 0 15px gold, 0 0 25px orange;
+    }
+
+    /* تأثير النار */
     .fireEffect {
         animation: fireGlow 1s infinite alternate;
     }
 
     @keyframes fireGlow {
-        from {
-            filter: drop-shadow(0 0 10px #ff6600);
-        }
-        to {
-            filter: drop-shadow(0 0 30px #ff3300);
-        }
+        from { filter: drop-shadow(0 0 12px #ff6600); }
+        to   { filter: drop-shadow(0 0 25px #ff3300); }
     }
 </style>
 </head>
 
 <body>
-
-<h1>💰 CASH FLOW</h1>
 
 <div id="wheelContainer">
     <canvas id="wheelCanvas"></canvas>
@@ -93,6 +97,8 @@
 
 <div id="result">جاري التحضير...</div>
 
+<div id="footerText">💰 CASH FLOW</div>
+
 <!-- صوت التدوير -->
 <audio id="spinSound" src="https://cdn.pixabay.com/download/audio/2023/02/28/audio_91be71e4f8.mp3?filename=wheel-spin-14288.mp3"></audio>
 
@@ -100,7 +106,7 @@
 <audio id="winSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_41a0d6edbe.mp3?filename=win-celebration-121114.mp3"></audio>
 
 <script>
-// الجوائز
+// الشرائح
 const prizes = [
     "5000",
     "10000",
@@ -114,19 +120,20 @@ const prizes = [
     "Good Luck"
 ];
 
+// ألوان الشرائح
 const colors = [
     "#c49b00", "#8c6e00", "#c49b00", "#8c6e00", "#c49b00",
     "#8c6e00", "#c49b00", "#8c6e00", "#222", "#333"
 ];
 
-// إعداد العجلة
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 330;
 canvas.height = 330;
 
+// رسم العجلة
 function drawWheel() {
-    const radius = canvas.width / 2;
+    const r = canvas.width / 2;
     const arc = (2 * Math.PI) / prizes.length;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -136,17 +143,17 @@ function drawWheel() {
 
         ctx.beginPath();
         ctx.fillStyle = colors[i];
-        ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius, angle, angle + arc);
+        ctx.moveTo(r, r);
+        ctx.arc(r, r, r, angle, angle + arc);
         ctx.fill();
 
         ctx.save();
-        ctx.translate(radius, radius);
+        ctx.translate(r, r);
         ctx.rotate(angle + arc / 2);
         ctx.fillStyle = "#fff";
         ctx.font = "16px Cairo";
         ctx.textAlign = "center";
-        ctx.fillText(prizes[i], radius - 50, 5);
+        ctx.fillText(prizes[i], r - 50, 5);
         ctx.restore();
     }
 }
@@ -156,7 +163,6 @@ drawWheel();
 const params = new URLSearchParams(window.location.search);
 const resultValue = params.get("result");
 
-// منع إعادة التدوير
 let spinning = false;
 
 function spinToPrize() {
@@ -165,7 +171,6 @@ function spinToPrize() {
 
     document.getElementById("spinSound").play();
 
-    // الحصول على موقع الجائزة
     let prizeIndex = prizes.indexOf(resultValue);
     if (prizeIndex === -1) prizeIndex = 0;
 
@@ -181,7 +186,7 @@ function spinToPrize() {
         if (resultValue === "Good Luck") {
             document.getElementById("result").innerHTML = "😢 حظ أوفر!";
         } else if (resultValue === "Free Spin") {
-            document.getElementById("result").innerHTML = "🎁 حصلت على دوران مجاني!";
+            document.getElementById("result").innerHTML = "🎁 دوران مجاني!";
         } else {
             document.getElementById("result").innerHTML = `🎉 مبروك! ربحت <b>${resultValue}</b>`;
         }
@@ -190,7 +195,6 @@ function spinToPrize() {
     }, 6000);
 }
 
-// شغّل العجلة تلقائياً عند فتح الصفحة
 setTimeout(spinToPrize, 1000);
 </script>
 
