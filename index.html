@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>🎡 عجلة الحظ | الصورة الأصلية</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <style>
+    body {
+      font-family: "Cairo", sans-serif;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #wheel-container {
+      position: relative;
+      width: min(90vw, 70vh);
+      height: min(90vw, 70vh);
+      margin: 40px auto 0;
+    }
+
+    /* المؤشر */
+    #pointer {
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      background: red;
+      clip-path: polygon(0 50%, 100% 0, 100% 100%);
+      z-index: 10;
+    }
+
+    /* صورة العجلة */
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      transition: transform 6s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 22px;
+      color: gold;
+      text-shadow: 0 0 10px gold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🎰 عجلة الحظ الذهبية</h2>
+
+  <div id="wheel-container">
+    <div id="pointer"></div>
+    <img id="wheel" src="wheel.png">
+  </div>
+
+  <div id="result">جاري تدوير العجلة...</div>
+
+  <script>
+    const prizes = [
+      "حظ أوفر",  // 0
+      "5000",     // 1
+      "10000",    // 2
+      "15000",    // 3
+      "25000",    // 4
+      "100000",   // 5
+      "250000",   // 6
+      "1M",       // 7
+      "5M",       // 8
+      "10M"       // 9
+    ];
+
+    // نفس نظامك القديم
+    const params = new URLSearchParams(location.search);
+    const result = params.get("result") || "0";
+
+    function getPrizeIndex(res) {
+      switch (res) {
+        case "0": return 0;
+        case "5000": return 1;
+        case "10000": return 2;
+        case "15000": return 3;
+        case "25000": return 4;
+        case "100000": return 5;
+        case "250000": return 6;
+        case "1000000": return 7;
+        case "5000000": return 8;
+        case "10000000": return 9;
+        default: return 0;
+      }
+    }
+
+    const prizeIndex = getPrizeIndex(result);
+
+    const wheel = document.getElementById("wheel");
+    const resultDiv = document.getElementById("result");
+
+    const slices = prizes.length;
+    const sliceDeg = 360 / slices;
+
+    // حساب الزاوية الصحيحة
+    const stopAngle = 360 - (prizeIndex * sliceDeg + sliceDeg / 2);
+
+    // دوران 6 لفات زائد الزاوية المطلوبة
+    const finalRotation = 360 * 6 + stopAngle;
+
+    setTimeout(() => {
+      wheel.style.transform = `rotate(${finalRotation}deg)`;
+    }, 500);
+
+    setTimeout(() => {
+      resultDiv.innerHTML =
+        prizeIndex === 0
+          ? "😢 <b>حظ أوفر! حاول مرة أخرى.</b>"
+          : `🎉 مبروك! ربحت <b>${prizes[prizeIndex]}</b>`;
+    }, 6500);
+  </script>
+
+</body>
+</html>
